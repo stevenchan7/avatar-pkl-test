@@ -1,0 +1,10 @@
+go 1.21.2
+
+use (
+	./config
+	./main
+	./models
+  ./controllers
+  ./utils
+  ./middlewares
+)
