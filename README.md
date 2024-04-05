@@ -1,4 +1,4 @@
-# avatar-product
+# Avatar Todo API
 
 ## Prerequisite to run this program locally
 
