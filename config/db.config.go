@@ -33,8 +33,8 @@ func ConnectDB() *gorm.DB {
 	}
 
 	// Craete table, sync model
-	db.AutoMigrate(models.Product{})
 	db.AutoMigrate(models.User{})
+	db.AutoMigrate(models.TodoItem{})
 
 	return db
 }

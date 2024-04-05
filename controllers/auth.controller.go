@@ -18,7 +18,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	newUser := models.User{Username: userBinder.Username, Password: userBinder.Password}
+	newUser := models.User{Username: userBinder.Username, Password: userBinder.Password, Email: userBinder.Email}
 
 	if err := DB.Create(&newUser).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "err": err.Error()})
@@ -33,13 +33,13 @@ func Login(c *gin.Context) {
 
 	if err := c.ShouldBind(&userBinder); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "err": err})
-    return
+		return
 	}
 
 	token, err := utils.LoginCheck(userBinder.Username, userBinder.Password)
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "err": err})
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": err.Error()})
 		return
 	}
 

@@ -9,63 +9,85 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func PostProduct(c *gin.Context) {
+func PostTodoItem(c *gin.Context) {
 	// Call ConnectDB
 	DB := config.ConnectDB()
 
-	var productInput models.ProductInput
+	var input models.AddTodoItemInput
 
 	// Bind input and check error at the same time
-	if err := c.ShouldBindJSON(&productInput); err != nil {
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": err.Error()})
 	}
 
-	newProduct := models.Product{Title: productInput.Title, Desc: productInput.Desc, Image: productInput.Image, Playstore: productInput.Playstore, Appstote: productInput.Appstote}
+	newTodoItem := models.TodoItem{Title: input.Title, Desc: input.Desc, Status: input.Status, DueDate: input.DueDate}
 
 	// Insert new product to database
-	if err := DB.Create(&newProduct).Error; err != nil {
+	if err := DB.Create(&newTodoItem).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": newProduct})
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": newTodoItem})
 }
 
-func EditProduct(c *gin.Context) {
+func UpdateTodoItem(c *gin.Context) {
 	DB := config.ConnectDB()
 	// Bind user input
-	var productInput models.EditProductInput
+	var input models.UpdateTodoItemInput
 
-	if err := c.ShouldBind(&productInput); err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "err": err.Error()})
 	}
 
 	// Find product in database
-	prodID := productInput.ID
+	TodoItemId := input.ID
 
-	var updatedProduct models.Product
+	var updatedTodoItem models.TodoItem
 
-	DB.First(&updatedProduct, "id = ?", prodID)
+	DB.First(&updatedTodoItem, "id = ?", TodoItemId)
 
 	// Update product in database
 	// updatedProduct.UpdatedAt = time.Now()
-	DB.Model(&updatedProduct).Updates(productInput)
+	DB.Model(&updatedTodoItem).Updates(input)
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": updatedProduct})
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": updatedTodoItem})
 }
 
-func DeleteProduct(c *gin.Context) {
+func UpdateTodoItemStatus(c *gin.Context) {
+	DB := config.ConnectDB()
+	// Bind user input
+	var input models.UpdateTodoItemStatusInput
+
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "err": err.Error()})
+	}
+
+	// Find product in database
+	TodoItemId := input.ID
+
+	var updatedTodoItem models.TodoItem
+
+	DB.First(&updatedTodoItem, "id = ?", TodoItemId)
+
+	// Update product in database
+	// updatedProduct.UpdatedAt = time.Now()
+	DB.Model(&updatedTodoItem).Updates(input)
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": updatedTodoItem})
+}
+
+func DeleteToDoItem(c *gin.Context) {
 	DB := config.ConnectDB()
 
-	var productInput models.DeleteProductInput
+	var input models.DeleteTodoItemInput
 
-	if err := c.ShouldBind(&productInput); err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "err": err.Error()})
 	}
 
 	// Delete from database
-	prodID := productInput.ID
-	DB.Delete(&models.Product{}, prodID)
+	DB.Delete(&models.TodoItem{}, input.ID)
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "msg": fmt.Sprintf("Successfully delete prduct with ID %s", productInput.ID)})
+	c.JSON(http.StatusOK, gin.H{"success": true, "msg": fmt.Sprintf("Successfully delete prduct with ID %s", input.ID)})
 }
